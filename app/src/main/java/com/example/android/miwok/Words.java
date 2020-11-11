@@ -1,10 +1,10 @@
 package com.example.android.miwok;
 
 public class Words {
+    private static final int NO_IMAGE = -1;
     private String miwok;
     private String english;
     private int img = NO_IMAGE;
-    private static final int NO_IMAGE = -1;
     private int resRecord;
 
     public Words(String english, String miwok, int resRecord) {
@@ -37,10 +37,7 @@ public class Words {
     }
 
     public boolean hasImage() {
-        if (img == NO_IMAGE)
-            return false;
-        else
-            return true;
+        return img != NO_IMAGE;
     }
 
 }

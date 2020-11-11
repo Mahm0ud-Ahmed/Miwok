@@ -7,15 +7,21 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import java.util.ArrayList;
 
-public class Colors extends AppCompatActivity {
+import static android.content.Context.AUDIO_SERVICE;
+
+public class Colors extends Fragment {
     ListView lv_temple;
     //متغير لتشغيل ملف الصوت المراد
     MediaPlayer player;
@@ -32,7 +38,6 @@ public class Colors extends AppCompatActivity {
             releaseResource();
         }
     };
-
     //كائن لتنظيم عمل التطبيق الخاص بنا في حال فقده للتركيز الصوتي او الحصول عليه بعد فقده
     AudioManager.OnAudioFocusChangeListener changeListener = new AudioManager.OnAudioFocusChangeListener() {
         @Override
@@ -55,14 +60,17 @@ public class Colors extends AppCompatActivity {
         }
     };
 
+    public Colors() {
+        super();
+    }
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_view);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.list_view, container, false);
 
         //استدعاء خدمات النظام والصوت
-        manager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        manager = (AudioManager) getActivity().getSystemService(AUDIO_SERVICE);
 
         // Create a list of words
         final ArrayList<Words> word = new ArrayList<Words>();
@@ -76,8 +84,8 @@ public class Colors extends AppCompatActivity {
         word.add(new Words("white", "kelelli", R.drawable.color_white, R.raw.color_white));
 
 
-        MyAdapter adapter = new MyAdapter(this, R.layout.list_view_templet, word, R.color.category_colors);
-        lv_temple = (ListView) findViewById(R.id.lv_templet);
+        MyAdapter adapter = new MyAdapter(getActivity(), R.layout.list_view_templet, word, R.color.category_colors);
+        lv_temple = rootView.findViewById(R.id.lv_templet);
         lv_temple.setAdapter(adapter);
 
         //كائن يختص بالضغط على أي item داخل ال List View
@@ -105,17 +113,17 @@ public class Colors extends AppCompatActivity {
 
                 //شرط في حال الموافقه من قبل النظام على أخذ التركيز الصوتي
                 if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    player = MediaPlayer.create(getBaseContext(), words.getResRecord());
+                    player = MediaPlayer.create(getActivity(), words.getResRecord());
                     player.start();
                     player.setOnCompletionListener(completionListener);
                 }
             }
         });
-
+        return rootView;
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         releaseResource();
     }

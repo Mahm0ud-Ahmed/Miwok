@@ -15,11 +15,12 @@
  */
 package com.example.android.miwok;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,22 +29,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ViewPager viewPager = findViewById(R.id.vp_frag);
+        FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(), getBaseContext());
+        viewPager.setAdapter(adapter);
+
+        TabLayout tabLayout = findViewById(R.id.tl_frag);
+        tabLayout.setupWithViewPager(viewPager);
+
 
     }
 
-    public void activityNumber(View view) {
-        startActivity(new Intent(getBaseContext(), Numbers.class));
-    }
-
-    public void activityPhrases(View view) {
-        startActivity(new Intent(getBaseContext(), Phrases.class));
-    }
-
-    public void activityColors(View view) {
-        startActivity(new Intent(getBaseContext(), Colors.class));
-    }
-
-    public void activityFamily(View view) {
-        startActivity(new Intent(getBaseContext(), Family.class));
-    }
 }

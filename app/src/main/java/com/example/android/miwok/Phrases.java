@@ -7,15 +7,21 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import java.util.ArrayList;
 
-public class Phrases extends AppCompatActivity {
+import static android.content.Context.AUDIO_SERVICE;
+
+public class Phrases extends Fragment {
     ListView lv_temple;
     //متغير لتشغيل ملف الصوت المراد
     MediaPlayer player;
@@ -23,7 +29,6 @@ public class Phrases extends AppCompatActivity {
     AudioFocusRequest audioFocusRequest;
     //كائن لاستدعاء خدمات ادارة الصوت داخل الجهاز
     AudioManager manager;
-
     //كائن لتنظيم عمل التطبيق الخاص بنا في حال فقده للتركيز الصوتي او الحصول عليه بعد فقده
     AudioManager.OnAudioFocusChangeListener changeListener = new AudioManager.OnAudioFocusChangeListener() {
         @Override
@@ -45,7 +50,6 @@ public class Phrases extends AppCompatActivity {
             }
         }
     };
-
     //كائن يتم استدعائه من قبل النظام بعد انتهاء الصوت من العمل
     MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         @Override
@@ -55,13 +59,17 @@ public class Phrases extends AppCompatActivity {
         }
     };
 
+    public Phrases() {
+        super();
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_view);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.list_view, container, false);
 
         //استدعاء خدمات النظام والصوت
-        manager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        manager = (AudioManager) getActivity().getSystemService(AUDIO_SERVICE);
 
         final ArrayList<Words> word = new ArrayList<>();
         word.add(new Words("Where are you going?", "minto wuksus", R.raw.phrase_where_are_you_going));
@@ -76,8 +84,8 @@ public class Phrases extends AppCompatActivity {
         word.add(new Words("Come here.", "әnni'nem", R.raw.phrase_come_here));
 
 
-        MyAdapter adapter = new MyAdapter(this, R.layout.list_view_templet, word, R.color.category_phrases);
-        lv_temple = (ListView) findViewById(R.id.lv_templet);
+        MyAdapter adapter = new MyAdapter(getActivity(), R.layout.list_view_templet, word, R.color.category_phrases);
+        lv_temple = rootView.findViewById(R.id.lv_templet);
         lv_temple.setAdapter(adapter);
 
         //كائن يختص بالضغط على أي item داخل ال List View
@@ -105,20 +113,21 @@ public class Phrases extends AppCompatActivity {
 
                 //شرط في حال الموافقه من قبل النظام على أخذ التركيز الصوتي
                 if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    player = MediaPlayer.create(getBaseContext(), words.getResRecord());
+                    player = MediaPlayer.create(getActivity(), words.getResRecord());
                     player.start();
                     player.setOnCompletionListener(completionListener);
                 }
             }
         });
+
+        return rootView;
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         releaseResource();
     }
-
 
     @TargetApi(Build.VERSION_CODES.O)
     public void releaseResource() {

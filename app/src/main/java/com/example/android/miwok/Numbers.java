@@ -8,15 +8,19 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import java.util.ArrayList;
 
-public class Numbers extends AppCompatActivity {
+public class Numbers extends Fragment {
 
     ListView lv_temple;
     //متغير لتشغيل ملف الصوت المراد
@@ -56,13 +60,16 @@ public class Numbers extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_view);
+    public Numbers() {
+        super();
+    }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.list_view, container, false);
         //استدعاء خدمات النظام والصوت
-        manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        manager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
 
         final ArrayList<Words> word = new ArrayList<>();
         word.add(new Words("one", "lutti", R.drawable.number_one, R.raw.number_one));
@@ -76,8 +83,8 @@ public class Numbers extends AppCompatActivity {
         word.add(new Words("nine", "wo’e", R.drawable.number_nine, R.raw.number_nine));
         word.add(new Words("ten", "na’aacha", R.drawable.number_ten, R.raw.number_ten));
 
-        MyAdapter adapter = new MyAdapter(this, R.layout.list_view_templet, word, R.color.category_numbers);
-        lv_temple = (ListView) findViewById(R.id.lv_templet);
+        MyAdapter adapter = new MyAdapter(getActivity(), R.layout.list_view_templet, word, R.color.category_numbers);
+        lv_temple = rootView.findViewById(R.id.lv_templet);
         lv_temple.setAdapter(adapter);
 
         //كائن يختص بالضغط على أي item داخل ال List View
@@ -105,7 +112,7 @@ public class Numbers extends AppCompatActivity {
 
                 //شرط في حال الموافقه من قبل النظام على أخذ التركيز الصوتي
                 if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    player = MediaPlayer.create(getBaseContext(), words.getResRecord());
+                    player = MediaPlayer.create(getActivity(), words.getResRecord());
                     player.start();
                     player.setOnCompletionListener(completionListener);
                 }
@@ -113,11 +120,11 @@ public class Numbers extends AppCompatActivity {
             }
         });
 
-
+        return rootView;
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         releaseResource();
     }
